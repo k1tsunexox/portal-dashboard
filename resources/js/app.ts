@@ -1,1 +1,1 @@
-//
+import "./components/index";
