@@ -12,7 +12,34 @@ return new class extends Migration
     public function up(): void
     {
         Schema::create('devices', function (Blueprint $table) {
+            
+            /**
+             * Some variables are set as nullable()
+             * as their values may not be known/available
+             * immediately. These include:
+             * elevation DECIMAL
+             * installed_at TIMESTAMP
+             * last_seen_at TIMESTAMP
+             */
             $table->id();
+            
+            $table->string('name');
+            $table->string('location_name');
+            $table->decimal('elevation', 8, 2)->nullable();
+            $table->decimal('latitude', 10, 7);
+            $table->decimal('longitude', 10, 7);
+
+            $table->enum('status', [
+                'online',
+                'offline',
+                'warning',
+                'critical',
+                'maintenance'
+            ])->default('offline');
+
+            $table->timestamp('installed_at')->nullable();
+            $table->timestamp('last_seen_at')->nullable();
+
             $table->timestamps();
         });
     }
