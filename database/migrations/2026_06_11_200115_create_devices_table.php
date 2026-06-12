@@ -25,6 +25,8 @@ return new class extends Migration
             
             $table->string('name');
             $table->string('location_name');
+            $table->string('area');
+
             $table->decimal('elevation', 8, 2)->nullable();
             $table->decimal('latitude', 10, 7);
             $table->decimal('longitude', 10, 7);
