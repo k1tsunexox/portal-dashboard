@@ -12,7 +12,7 @@ class ReadingSeeder extends Seeder
      */
     public function run(): void
     {
-        Device::all()->each(function ($device) {
+        Device::all()->each(function ($device, $deviceIndex) {
             for ($i = 0; $i < 20; $i++) {
 
                 $waterLevel = fake()->randomFloat(2, 0.5, 8.0);
@@ -34,7 +34,10 @@ class ReadingSeeder extends Seeder
                     
                     'rainfall_mm' => fake()->randomFloat(1, 0.0, 120.0),
                     'flow_speed_mps' => fake()->randomFloat(2, 0.1, 3.0),
-                    'battery_pct' => fake()->numberBetween(20, 100),
+                    
+                    'battery_pct' => $i === 0 && $deviceIndex < 2
+                        ? fake()->numberBetween(10, 25)
+                        : fake()->numberBetween(30, 100),
                     
                     'signal_strength_dbm' => $signalDbm,
                     'signal_strength_pct' => $signalPct,

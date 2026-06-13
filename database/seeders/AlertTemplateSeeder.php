@@ -23,7 +23,7 @@ class AlertTemplateSeeder extends Seeder
 
         AlertTemplate::create([
             'alert_type' => 'rainfall',
-            'alert_level' => 'info',
+            'alert_level' => 'warning',
             'title' => 'Rainfall Alert',
             'message_template' => 'Heavy rainfall detected near {location_name}.',
             'is_active' => true
