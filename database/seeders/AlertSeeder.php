@@ -48,15 +48,19 @@ class AlertSeeder extends Seeder
         foreach ($alertTypes as $index => $alertType) {
             $device = $devices->random();
 
+            $template = AlertTemplate::where('alert_type', $alertType)
+                ->where('is_active', true)
+                ->first();
+
+            if (!$template) {
+                continue;
+            }
+
             $latestReading = $device->readings()
                 ->latest('recorded_at')
                 ->first();
 
             $batteryPct = $latestReading?->battery_pct ?? 'unknown';
-
-            $template = AlertTemplate::where('alert_type', $alertType)
-                ->where('is_active', true)
-                ->first();
 
             $message = str_replace(
                 ['{location_name}', '{device_name}', '{battery_pct}'],
@@ -64,11 +68,42 @@ class AlertSeeder extends Seeder
                 $template->message_template
             );
 
-            if (!$template) {
-                continue;
+            $triggeredAt = now()->subMinutes($index * 15);
+
+            $acknowledgedAt = null;
+            $acknowledgedBy = null;
+            $resolvedAt = null;
+            $resolvedBy = null;
+            $isActive = true;
+
+            // Acknowledged, not resolved
+            if ($index >= 6 && $index <= 10) {
+                $acknowledgedAt = $triggeredAt->copy()->addMinutes(10);
+                $acknowledgedBy = 'Admin';
+                $isActive = true;
             }
 
+            // Resolved
+            if ($index > 10) {
+                $acknowledgedAt = $triggeredAt->copy()->addMinutes(10);
+                $acknowledgedBy = 'Admin';
+                $resolvedAt = $triggeredAt->copy()->addMinutes(45);
+                $resolvedBy = 'Admin';
+                $isActive = false;
+            }
 
+            $device->alerts()->create([
+                'alert_template_id' => $template->id,
+                'alert_type' => $template->alert_type,
+                'alert_level' => $template->alert_level,
+                'message' => $message,
+                'triggered_at' => $triggeredAt,
+                'acknowledged_at' => $acknowledgedAt,
+                'acknowledged_by' => $acknowledgedBy,
+                'resolved_at' => $resolvedAt,
+                'resolved_by' => $resolvedBy,
+                'is_active' => $isActive
+            ]);
         }
     }
 }
