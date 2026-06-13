@@ -12,7 +12,19 @@ class DeviceController extends Controller
      */
     public function index()
     {
-        //
+        $devices = Device::select([
+            'id',
+            'name',
+            'location_name',
+            'latitude',
+            'longitude',
+            'status',
+            'last_seen_at'
+        ])->get();
+
+        return response()->json([
+            'data' => $devices
+        ]);
     }
 
     /**
