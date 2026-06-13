@@ -11,12 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('alerts', function (Blueprint $table) {
+        Schema::create('alert_templates', function (Blueprint $table) {
             $table->id();
-
-            $table->foreignId('device_id')
-                ->constrained('devices')
-                ->cascadeOnDelete();
 
             $table->enum('alert_type', [
                 'water_level',
@@ -35,25 +31,9 @@ return new class extends Migration
                 'critical'
             ])->default('info');
 
-            /**
-             * Removes the template,
-             * but does not delete history/log
-             */
-            $table->foreignId('alert_template_id')
-                ->nullable()
-                ->constrained('alert_templates')
-                ->nullOnDelete();
-
-            $table->string('message');
-
-            $table->timestamp('triggered_at');
-
-            $table->timestamp('acknowledged_at')->nullable();
-            $table->string('acknowledged_by')->nullable();
-
-            $table->timestamp('resolved_at')->nullable();
-            $table->string('resolved_by')->nullable();
-
+            $table->string('title');
+            $table->text('message_template');
+            
             $table->boolean('is_active')->default(true);
 
             $table->timestamps();
@@ -65,6 +45,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('alerts');
+        Schema::dropIfExists('alert_templates');
     }
 };

@@ -3,7 +3,6 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Device;
 
 class Alert extends Model
 {
@@ -11,6 +10,7 @@ class Alert extends Model
         'device_id',
         'alert_type',
         'alert_level',
+        'alert_template_id',
         'message',
         'triggered_at',
         'acknowledged_at',
@@ -30,5 +30,10 @@ class Alert extends Model
     public function device()
     {
         return $this->belongsTo(Device::class);
+    }
+
+    public function template()
+    {
+        return $this->belongsTo(AlertTemplate::class, 'alert_template_id');
     }
 }
