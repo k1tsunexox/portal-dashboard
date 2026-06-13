@@ -12,51 +12,51 @@
             "status": "online",
             "last_seen_at": "2026-06-13T08:51:37.000000Z"
         },
-        {
-            "id": 2,
-            "name": "Pampanga River Sensor",
-            "location_name": "Pampanga River, San Fernando",
-            "latitude": "15.0285000",
-            "longitude": "120.6893000",
-            "status": "online",
-            "last_seen_at": "2026-06-13T08:51:37.000000Z"
-        },
-        {
-            "id": 3,
-            "name": "Cagayan River Sensor",
-            "location_name": "Cagayan River, Tuguegarao",
-            "latitude": "17.6132000",
-            "longitude": "121.7270000",
-            "status": "online",
-            "last_seen_at": "2026-06-13T08:51:37.000000Z"
-        },
-        {
-            "id": 4,
-            "name": "Agno River Sensor",
-            "location_name": "Agno River, Pangasinan",
-            "latitude": "16.0289000",
-            "longitude": "120.3315000",
-            "status": "online",
-            "last_seen_at": "2026-06-13T08:51:37.000000Z"
-        },
-        {
-            "id": 5,
-            "name": "Pasig River Sensor",
-            "location_name": "Pasig River, Napindan",
-            "latitude": "14.5629000",
-            "longitude": "121.0796000",
-            "status": "online",
-            "last_seen_at": "2026-06-13T08:51:37.000000Z"
-        },
-        {
-            "id": 6,
-            "name": "Bicol River Sensor",
-            "location_name": "Bicol River, Naga",
-            "latitude": "13.6192000",
-            "longitude": "123.1814000",
-            "status": "online",
-            "last_seen_at": "2026-06-13T08:51:37.000000Z"
-        }
+        ...,
     ]
+}
+```
+
+## GET `/api/devices/{id}`
+
+```json
+{
+  "data": {
+    "id": 1,
+    "name": "Marikina River Sensor",
+    "location_name": "Marikina River Station",
+    "area": "NCR",
+    "elevation": "12.50",
+    "latitude": "14.6507000",
+    "longitude": "121.1029000",
+    "status": "online",
+    "installed_at": "2026-06-03T08:51:37.000000Z",
+    "last_seen_at": "2026-06-13T08:51:37.000000Z",
+    "created_at": "2026-06-13T08:51:37.000000Z",
+    "updated_at": "2026-06-13T08:51:37.000000Z",
+    "readings": [
+      {
+        "id": 1,
+        "device_id": 1,
+        "water_level_m": "6.76",
+        "water_level_status": "critical",
+        "rainfall_mm": "64.70",
+        "flow_speed_mps": "0.75",
+        "battery_pct": 20,
+        "signal_strength_dbm": -77,
+        "signal_strength_pct": 46,
+        "recorded_at": "2026-06-13T08:51:37.000000Z"
+      },
+      ...
+    ]
+  }
+}
+```
+
+Error message:
+
+```json
+{
+    "message": "Device not found"
 }
 ```

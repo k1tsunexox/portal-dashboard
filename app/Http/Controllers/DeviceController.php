@@ -38,9 +38,36 @@ class DeviceController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Device $device)
+    public function show($id)
     {
-        //
+        $device = Device::with([
+            'readings' => function ($q) {
+                $q->select([
+                    'id',
+                    'device_id',
+                    'water_level_m',
+                    'water_level_status',
+                    'rainfall_mm',
+                    'flow_speed_mps',
+                    'battery_pct',
+                    'signal_strength_dbm',
+                    'signal_strength_pct',
+                    'recorded_at'
+                ])
+                ->orderByDesc('recorded_at')
+                ->limit(10);
+            }
+        ])->find($id);
+
+        if(!$device) {
+            return response()->json([
+                'message' => 'Device not found'
+            ], 404);
+        }
+
+        return response()->json([
+            'data' => $device
+        ]);
     }
 
     /**
