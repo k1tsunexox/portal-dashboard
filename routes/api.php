@@ -7,3 +7,5 @@ use App\Http\Controllers\DeviceController;
 Route::get('/devices', [DeviceController::class, 'index']);
 
 Route::get('/devices/{id}', [DeviceController::class, 'show']);
+
+Route::get('/devices/{id}/stream', [DeviceController::class, 'stream']);

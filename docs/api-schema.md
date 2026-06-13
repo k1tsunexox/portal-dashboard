@@ -60,3 +60,33 @@ Error message:
     "message": "Device not found"
 }
 ```
+
+### GET `/api/devices/{id}/stream`
+
+```json
+{
+  "device": {
+    "id": 2,
+    "name": "Pampanga River Sensor",
+    "location_name": "Pampanga River, San Fernando",
+    "status": "online",
+    "last_seen_at": "2026-06-13T10:14:01.000000Z"
+  },
+  "inserted": false,
+  "data": [
+    {
+      "id": 121,
+      "device_id": 2,
+      "water_level_m": "2.56",
+      "water_level_status": "normal",
+      "rainfall_mm": "26.90",
+      "flow_speed_mps": "0.91",
+      "battery_pct": 0,
+      "signal_strength_dbm": -72,
+      "signal_strength_pct": 56,
+      "recorded_at": "2026-06-13T10:14:01.000000Z"
+    },
+    ...
+  ]
+}
+```
