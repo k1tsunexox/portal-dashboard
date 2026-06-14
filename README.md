@@ -101,6 +101,16 @@ npm run build
 # for php commands
 php artisan key:generate
 php artisan migrate
+
+# seed the tables
+php artisan db:seed
+
+# for full local reset
+php artisan migrate:fresh --seed
 ```
 
-Then run `npm run dev` and `php artisan serve` on two different terminals, simultaneously.
+Run `npm run dev` and `php artisan serve` on two different terminals, simultaneously.
+
+> [!WARNING]
+> **DO NOT FORGET** to open/start your database before running
+> `npm run dev` and `php artisan serve`.
