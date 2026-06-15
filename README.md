@@ -1,29 +1,29 @@
-## After cloning
+# After cloning
 
 Setup your database.
 
 **For Windows:**
 
-- [XAMPP](###-XAMPP) (phpmyadmin)
-- [MariaDB](###-MariaDB) (mysql)
-- [SQLite](####-Windows-setup)
+- [XAMPP](#xampp) (phpMyAdmin)
+- [MariaDB](#mariadb) (mysql)
+- [SQLite](#windows-setup)
 
 **For Linux:**
 
-- [MariaDB](###-MariaDB) (mysql)
-- [SQLite](####-Linux-setup)
+- [MariaDB](#mariadb) (mysql)
+- [SQLite](#linux-setup)
 
-### SQLite
+# SQLite
 
 Create a `.sqlite` file:
 
-#### Linux setup
+# Linux setup
 ```bash
 # for linux users
 touch database/database.sqlite
 ```
 
-#### Windows setup
+# Windows setup
 ```powershell
 # for powershell users
 code database/database.sqlite
@@ -32,9 +32,9 @@ code database/database.sqlite
 New-Item -ItemType File database/database.sqlite -Force
 ```
 
-Then proceed to [SQLite `.env` setup](##-`.env`-file-setup)
+Then proceed to [SQLite `.env` setup](#-`.env`-file-setup)
 
-### MariaDB
+# MariaDB
 
 ```sql
 sudo mariadb -u root -p
@@ -56,7 +56,7 @@ FLUSH PRIVILEGES;
 exit;
 ```
 
-### XAMPP
+# XAMPP
 
 Open XAMPP amp, and start both Apache and MySQL modules. Once started, click on the `Admin` button for MySQL. Create a new database with the name `portal_dashboard`, and create a new user, and grant needed permissions.
 
@@ -92,7 +92,7 @@ If you have already created a database, no need to check the boxes.
 
 Click `go` once finished.
 
-## `.env` file setup
+# `.env` file setup
 
 Initialize `.env` file. Rename `.env.example` to `.env`, and change necessary details:
 
@@ -105,7 +105,7 @@ DB_USERNAME=<your_username>
 DB_PASSWORD=<your_password>
 ```
 
-### For SQLite users
+# For SQLite users
 
 Set your `.env` file to:
 
