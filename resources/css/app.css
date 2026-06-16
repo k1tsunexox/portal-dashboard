@@ -12,3 +12,8 @@ html, body, #root {
   width: 100% !important;
   height: 100% !important;
 }
+
+@keyframes livestream-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
