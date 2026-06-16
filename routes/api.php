@@ -3,6 +3,9 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DeviceController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AlertController;
+use App\Http\Controllers\AnalyticsController;
 
 Route::get('/devices', [DeviceController::class, 'index']);
 
@@ -10,25 +13,10 @@ Route::get('/devices/{id}', [DeviceController::class, 'show']);
 
 Route::get('/devices/{id}/stream', [DeviceController::class, 'stream']);
 
-Route::get('/readings/last24hours', function () {
-    return \App\Models\Reading::where('recorded_at', '>=', now()->subHours(24))
-        ->orderBy('recorded_at')
-        ->get(['recorded_at', 'water_level_m']);
-});
+Route::get('/dashboard/summary', [DashboardController::class, 'summary']);
 
-Route::get('/readings/alert-frequency', function (Request $request) {
-    $days = min((int) $request->query('days', 7), 90);
+Route::get('/alerts', [AlertController::class, 'index']);
 
-    $rows = \App\Models\Reading::select(
-            \DB::raw('DATE(recorded_at) as date'),
-            \DB::raw("SUM(CASE WHEN water_level_status = 'normal'   THEN 1 ELSE 0 END) as normal"),
-            \DB::raw("SUM(CASE WHEN water_level_status = 'warning'  THEN 1 ELSE 0 END) as warning"),
-            \DB::raw("SUM(CASE WHEN water_level_status = 'critical' THEN 1 ELSE 0 END) as critical")
-        )
-        ->where('recorded_at', '>=', now()->subDays($days))
-        ->groupBy('date')
-        ->orderBy('date')
-        ->get();
+Route::get('/analytics/last24Hrs', [AnalyticsController::class, 'last24Hrs']);
 
-    return response()->json($rows);
-});
+Route::get('/analytics/alert-frequency', [AnalyticsController::class, 'alertFrequency']);
