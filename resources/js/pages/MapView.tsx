@@ -19,8 +19,9 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import 'mapbox-gl/dist/mapbox-gl.css';
 import axios from 'axios';
-import { useMap } from './MapContext';
+import { useMap } from '../MapContext';
 
+console.log('Mapbox token:', import.meta.env.VITE_MAPBOX_TOKEN);
 mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_TOKEN;
 
 // ─── Types ───────────────────────────────────────────────────────────────────

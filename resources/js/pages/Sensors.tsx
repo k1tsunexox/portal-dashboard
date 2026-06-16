@@ -13,7 +13,7 @@
 
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
-import { useMap } from './MapContext';
+import { useMap } from '../MapContext';
 
 interface Device {
   id: number;
