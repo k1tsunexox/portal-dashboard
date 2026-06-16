@@ -4,19 +4,20 @@ This guide covers installation, configuration, and running of the project.
 
 ## Required dependencies
 
-- List of [dependencies](#installing-dependencies)
+- List of [dependencies](docs/dependencies.md)
 
-## Fresh setup 
+## Fresh setup
 
 If the dependencies have been installed, but not yet configured for the project:
 
-- [Database](#database-setup)
-- [`.env` setup](#env-file-setup)
-- [composer setup](#composer-setup)
-- [npm and php setup](#npm-and-php-setup)
+- [Database](docs/fresh-setup.md#database-setup)
+- [`.env` setup](docs/fresh-setup.md#env-file-setup)
+- [composer setup](docs/fresh-setup.md#composer-setup)
+- [npm and php setup](docs/fresh-setup.md#npm-and-php-setup)
 
 ## After `git fetch` and `git pull`
 
+<<<<<<< HEAD
 - [Frontend changes](#frontend-changes)
 - [Backend changes](#backend-changes) (`Controllers/`, `Models/`, `migrations/`)
 - [Route changes](#route-changes) (`routes/`, `config/`)
@@ -319,14 +320,17 @@ php artisan migrate:fresh --seed
 
 > [!WARNING]
 > Running this command will delete all existing local database tables and data, then recreate and seed them. Only run this when needed.
+=======
+- [Frontend changes](docs/after-pull.md#frontend-changes)
+- [Backend changes](docs/after-pull.md#backend-changes) (`Controllers/`, `Models/`, `migrations/`)
+- [Route changes](docs/after-pull.md#route-changes) (`routes/`, `config/`)
+- [Database changes](docs/after-pull.md#database-changes)
+>>>>>>> 26e5f86 (chore: separated instructions into different md files)
 
 ## Running the website
 
-Run `npm run dev` and `php artisan serve` on two different terminals, simultaneously.
+- [Run the website](docs/running-website.md#running-the-website)
 
-Open `http://127.0.0.1:8000` or `http://localhost:8000`.
+## API Schema
 
-> [!WARNING]
-> **DO NOT FORGET** to open/start your database before running
-> `npm run dev` and `php artisan serve`.
-
+- [JSON Schema](docs/api-schema.md)
