@@ -190,7 +190,7 @@ class DeviceController extends Controller
                 'recorded_at'
             ])
             ->orderByDesc('recorded_at')
-            ->limit(10)
+            ->limit(20)
             ->get();
 
         return response()->json([
