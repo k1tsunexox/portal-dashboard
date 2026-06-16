@@ -86,7 +86,7 @@ export default function AppShell() {
         MapView fills 100% of this container. It is NEVER unmounted.
         Other panels float on top of it.
       */}
-      <div className="absolute inset-0 z-0">
+      <div className="absolute inset-0 z-0 overflow-hidden">
         <MapView />
       </div>
 

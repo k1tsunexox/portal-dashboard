@@ -3,7 +3,9 @@ import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { MapProvider } from './MapContext';
 import AppShell from './components/AppShell';
+
 import 'mapbox-gl/dist/mapbox-gl.css';
+import '../css/app.css';
 
 function App() {
     return (
