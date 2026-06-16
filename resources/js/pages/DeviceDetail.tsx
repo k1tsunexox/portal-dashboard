@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import LiveStream from '../components/LiveStream';
 import axios from 'axios';
 
 interface Reading {
@@ -20,8 +19,6 @@ interface Device {
     location_name: string;
     area: string;
     elevation: string;
-    latitude: string;
-    longitude: string;
     status: string;
     installed_at: string;
     last_seen_at: string;
@@ -35,16 +32,13 @@ function statusColor(status: string) {
 }
 
 function statusBg(status: string) {
-    if (status === 'critical') return 'rgba(220,38,38,0.15)';
-    if (status === 'warning') return 'rgba(217,119,6,0.15)';
-    return 'rgba(16,185,129,0.15)';
+    if (status === 'critical') return '#fee2e2';
+    if (status === 'warning') return '#fef3c7';
+    return '#d1fae5';
 }
 
 function formatDate(str: string) {
-    return new Date(str).toLocaleString('en-PH', {
-        month: 'short', day: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
-    });
+    return new Date(str).toLocaleString();
 }
 
 export default function DeviceDetail() {
@@ -56,87 +50,74 @@ export default function DeviceDetail() {
 
     useEffect(() => {
         axios.get(`/api/devices/${id}`)
-            .then(res => { setDevice(res.data.data); setLoading(false); })
-            .catch(() => { setError(true); setLoading(false); });
+            .then(res => {
+                setDevice(res.data.data);
+                setLoading(false);
+            })
+            .catch(() => {
+                setError(true);
+                setLoading(false);
+            });
     }, [id]);
 
-    if (loading) return (
-        <div style={{ padding: '20px', color: '#94a3b8', fontSize: '13px' }}>
-            Loading device...
-        </div>
-    );
-    if (error || !device) return (
-        <div style={{ padding: '20px', color: '#dc2626', fontSize: '13px' }}>
-            Device not found.
-        </div>
-    );
+    if (loading) return <div style={{ padding: '24px', color: '#6b7280' }}>Loading device...</div>;
+    if (error || !device) return <div style={{ padding: '24px', color: '#dc2626' }}>Device not found.</div>;
 
     const latest = device.readings[0];
 
     const metricCards = [
-        { label: 'Water Level', value: `${latest?.water_level_m ?? '—'}m`,  status: latest?.water_level_status ?? 'normal' },
-        { label: 'Rainfall',    value: `${latest?.rainfall_mm ?? '—'}mm`,    status: 'normal' },
-        { label: 'Battery',     value: `${latest?.battery_pct ?? '—'}%`,     status: (latest?.battery_pct ?? 100) < 30 ? 'critical' : 'normal' },
-        { label: 'Signal',      value: `${latest?.signal_strength_pct ?? '—'}%`, status: (latest?.signal_strength_pct ?? 100) < 40 ? 'warning' : 'normal' },
+        { label: 'Water Level', value: `${latest?.water_level_m ?? '—'}m`, status: latest?.water_level_status ?? 'normal' },
+        { label: 'Rainfall', value: `${latest?.rainfall_mm ?? '—'}mm`, status: 'normal' },
+        { label: 'Battery', value: `${latest?.battery_pct ?? '—'}%`, status: (latest?.battery_pct ?? 100) < 30 ? 'critical' : 'normal' },
+        { label: 'Signal', value: `${latest?.signal_strength_pct ?? '—'}%`, status: (latest?.signal_strength_pct ?? 100) < 40 ? 'warning' : 'normal' },
     ];
 
     return (
-        <div style={{ padding: '16px', color: '#e2e8f0' }}>
-
+        <div style={{ padding: '24px' }}>
             {/* Back button */}
             <button
                 onClick={() => navigate('/sensors')}
-                style={{
-                    background: 'none', border: 'none',
-                    color: '#64748b', fontSize: '12px',
-                    cursor: 'pointer', marginBottom: '12px',
-                    padding: 0, display: 'flex', alignItems: 'center', gap: '4px',
-                }}
+                style={{ background: 'none', border: 'none', color: '#6b7280', fontSize: '14px', cursor: 'pointer', marginBottom: '16px', padding: 0 }}
             >
                 ← Back to Sensors
             </button>
 
             {/* Header */}
-            <div style={{ marginBottom: '16px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', gap: '8px' }}>
-                    <h1 style={{ fontSize: '16px', fontWeight: 700, color: '#f1f5f9', margin: '0 0 4px', lineHeight: 1.3 }}>
-                        {device.name}
-                    </h1>
-                    <span style={{
-                        padding: '3px 10px', borderRadius: '6px',
-                        fontSize: '11px', fontWeight: 700,
-                        background: statusBg(device.status),
-                        color: statusColor(device.status),
-                        whiteSpace: 'nowrap', flexShrink: 0,
-                    }}>
-                        {device.status}
-                    </span>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '24px' }}>
+                <div>
+                    <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#111827', margin: '0 0 4px' }}>{device.name}</h1>
+                    <p style={{ fontSize: '14px', color: '#6b7280', margin: 0 }}>📍 {device.location_name} · {device.area}</p>
                 </div>
-                <p style={{ fontSize: '12px', color: '#64748b', margin: 0 }}>
-                    📍 {device.location_name} · {device.area}
-                </p>
+                <span style={{
+                    padding: '4px 12px',
+                    borderRadius: '6px',
+                    fontSize: '13px',
+                    fontWeight: 600,
+                    background: statusBg(device.status),
+                    color: statusColor(device.status),
+                }}>
+                    {device.status}
+                </span>
             </div>
 
-            {/* Metric Cards — 2x2 grid fits the sidebar width */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', marginBottom: '16px' }}>
+            {/* Metric Cards */}
+            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
                 {metricCards.map(card => (
                     <div key={card.label} style={{
-                        background: 'rgba(255,255,255,0.05)',
-                        border: `1px solid ${card.status !== 'normal' ? statusColor(card.status) + '66' : 'rgba(255,255,255,0.08)'}`,
-                        borderRadius: '8px',
-                        padding: '12px',
+                        background: '#fff',
+                        border: `1px solid ${card.status !== 'normal' ? statusColor(card.status) : '#e5e7eb'}`,
+                        borderRadius: '10px',
+                        padding: '20px',
                     }}>
-                        <p style={{ fontSize: '11px', color: '#64748b', margin: '0 0 4px', fontWeight: 500 }}>
-                            {card.label}
-                        </p>
-                        <p style={{ fontSize: '20px', fontWeight: 700, color: statusColor(card.status), margin: '0 0 4px' }}>
-                            {card.value}
-                        </p>
+                        <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 8px' }}>{card.label}</p>
+                        <p style={{ fontSize: '24px', fontWeight: 600, color: statusColor(card.status), margin: '0 0 4px' }}>{card.value}</p>
                         <span style={{
-                            fontSize: '10px', fontWeight: 700,
+                            fontSize: '11px',
+                            fontWeight: 600,
                             color: statusColor(card.status),
                             background: statusBg(card.status),
-                            padding: '2px 6px', borderRadius: '4px',
+                            padding: '2px 8px',
+                            borderRadius: '4px',
                         }}>
                             {card.status}
                         </span>
@@ -144,100 +125,54 @@ export default function DeviceDetail() {
                 ))}
             </div>
 
-            {/* Recent Readings — scrollable horizontally */}
-            <div style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '8px', padding: '14px',
-                marginBottom: '8px',
-            }}>
-                <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#cbd5e1', margin: '0 0 10px' }}>
-                    Recent Readings
-                </h2>
-                <div style={{ overflowX: 'auto' }}>
-                    <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '11px', minWidth: '480px' }}>
-                        <thead>
-                            <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-                                {['Time', 'Level', 'Status', 'Rain', 'Flow', 'Bat.', 'Sig.'].map(h => (
-                                    <th key={h} style={{
-                                        textAlign: 'left', padding: '6px 8px',
-                                        color: '#475569', fontWeight: 500, whiteSpace: 'nowrap',
-                                    }}>
-                                        {h}
-                                    </th>
-                                ))}
-                            </tr>
-                        </thead>
-                        <tbody>
-                            {device.readings.map((r, i) => (
-                                <tr key={r.id} style={{
-                                    borderBottom: '1px solid rgba(255,255,255,0.04)',
-                                    background: i === 0 ? 'rgba(16,185,129,0.08)' : 'transparent',
-                                }}>
-                                    <td style={{ padding: '7px 8px', color: '#94a3b8', whiteSpace: 'nowrap' }}>
-                                        {formatDate(r.recorded_at)}
-                                    </td>
-                                    <td style={{ padding: '7px 8px', fontWeight: 600, color: '#f1f5f9', whiteSpace: 'nowrap' }}>
-                                        {r.water_level_m}m
-                                    </td>
-                                    <td style={{ padding: '7px 8px' }}>
-                                        <span style={{
-                                            color: statusColor(r.water_level_status),
-                                            background: statusBg(r.water_level_status),
-                                            padding: '1px 6px', borderRadius: '4px',
-                                            fontSize: '10px', fontWeight: 700, whiteSpace: 'nowrap',
-                                        }}>
-                                            {r.water_level_status}
-                                        </span>
-                                    </td>
-                                    <td style={{ padding: '7px 8px', color: '#94a3b8' }}>{r.rainfall_mm}mm</td>
-                                    <td style={{ padding: '7px 8px', color: '#94a3b8' }}>{r.flow_speed_mps}m/s</td>
-                                    <td style={{ padding: '7px 8px', fontWeight: 500, whiteSpace: 'nowrap', color: r.battery_pct < 30 ? '#dc2626' : '#10b981' }}>
-                                        {r.battery_pct}%
-                                    </td>
-                                    <td style={{ padding: '7px 8px', fontWeight: 500, whiteSpace: 'nowrap', color: r.signal_strength_pct < 40 ? '#d97706' : '#10b981' }}>
-                                        {r.signal_strength_pct}%
-                                    </td>
-                                </tr>
+            {/* Readings Table */}
+            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '24px' }}>
+                <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 16px' }}>Recent Readings</h2>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
+                    <thead>
+                        <tr style={{ borderBottom: '1px solid #e5e7eb' }}>
+                            {['Recorded At', 'Water Level', 'Status', 'Rainfall', 'Flow Speed', 'Battery', 'Signal'].map(h => (
+                                <th key={h} style={{ textAlign: 'left', padding: '8px 12px', color: '#6b7280', fontWeight: 500 }}>{h}</th>
                             ))}
-                        </tbody>
-                    </table>
-                </div>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {device.readings.map((r, i) => (
+                            <tr key={r.id} style={{ borderBottom: '1px solid #f3f4f6', background: i === 0 ? '#f0fdf4' : 'transparent' }}>
+                                <td style={{ padding: '10px 12px', color: '#374151' }}>{formatDate(r.recorded_at)}</td>
+                                <td style={{ padding: '10px 12px', fontWeight: 600, color: '#111827' }}>{r.water_level_m}m</td>
+                                <td style={{ padding: '10px 12px' }}>
+                                    <span style={{ color: statusColor(r.water_level_status), background: statusBg(r.water_level_status), padding: '2px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600 }}>
+                                        {r.water_level_status}
+                                    </span>
+                                </td>
+                                <td style={{ padding: '10px 12px', color: '#374151' }}>{r.rainfall_mm}mm</td>
+                                <td style={{ padding: '10px 12px', color: '#374151' }}>{r.flow_speed_mps} m/s</td>
+                                <td style={{ padding: '10px 12px', color: r.battery_pct < 30 ? '#dc2626' : '#10b981', fontWeight: 500 }}>{r.battery_pct}%</td>
+                                <td style={{ padding: '10px 12px', color: r.signal_strength_pct < 40 ? '#d97706' : '#10b981', fontWeight: 500 }}>{r.signal_strength_pct}%</td>
+                            </tr>
+                        ))}
+                    </tbody>
+                </table>
             </div>
 
             {/* Device Info */}
-            <div style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
-                borderRadius: '8px', padding: '14px',
-                marginBottom: '8px',
-            }}>
-                <h2 style={{ fontSize: '13px', fontWeight: 600, color: '#cbd5e1', margin: '0 0 10px' }}>
-                    Device Info
-                </h2>
-                <div style={{ fontSize: '12px', display: 'flex', flexDirection: 'column', gap: '6px' }}>
+            <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '24px', marginTop: '16px' }}>
+                <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 16px' }}>Device Info</h2>
+                <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', fontSize: '13px' }}>
                     {[
-                        { label: 'Elevation',    value: `${device.elevation}m` },
-                        { label: 'Coordinates',  value: `${device.latitude}, ${device.longitude}` },
-                        { label: 'Installed',    value: formatDate(device.installed_at) },
-                        { label: 'Last Seen',    value: formatDate(device.last_seen_at) },
+                        { label: 'Elevation', value: `${device.elevation}m` },
+                        { label: 'Coordinates', value: `${device.latitude}, ${device.longitude}` },
+                        { label: 'Installed', value: formatDate(device.installed_at) },
+                        { label: 'Last Seen', value: formatDate(device.last_seen_at) },
                     ].map(row => (
-                        <div key={row.label} style={{
-                            display: 'flex', justifyContent: 'space-between',
-                            alignItems: 'flex-start', gap: '8px',
-                            padding: '6px 0',
-                            borderBottom: '1px solid rgba(255,255,255,0.05)',
-                        }}>
-                            <span style={{ color: '#475569', flexShrink: 0 }}>{row.label}</span>
-                            <span style={{ color: '#cbd5e1', fontWeight: 500, textAlign: 'right' }}>{row.value}</span>
+                        <div key={row.label} style={{ display: 'flex', justifyContent: 'space-between', padding: '8px 0', borderBottom: '1px solid #f3f4f6' }}>
+                            <span style={{ color: '#6b7280' }}>{row.label}</span>
+                            <span style={{ color: '#111827', fontWeight: 500 }}>{row.value}</span>
                         </div>
                     ))}
                 </div>
             </div>
-
-            {/* Live Stream — your Role 4 component */}
-            <LiveStream deviceId={device.id} />
-
         </div>
     );
 }

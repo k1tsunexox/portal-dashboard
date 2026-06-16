@@ -1,13 +1,28 @@
+/**
+ * Analytics.tsx
+ *
+ * Redesigned for the dark glass slide-over panel (400px wide).
+ *
+ * Fixes applied vs. the original:
+ *  - Dark palette matching the panel surface (no more white cards)
+ *  - Header row: title stacks above the date picker so neither is cramped
+ *  - Bar chart: horizontally scrollable container so bars never clip
+ *  - Bottom section: stacks vertically (Status Distribution above Weekly Alert
+ *    Frequency) instead of a side-by-side grid — the panel is too narrow for
+ *    two equal columns without squashing content
+ *  - Weekly Alert Frequency card: full width, proper inner height, no truncation
+ */
+
 import React, { useState } from 'react';
 
 const weeklyData = [
-  { day: 'Mon', avg: 2.7, max: 3.5 },
-  { day: 'Tue', avg: 3.0, max: 3.8 },
-  { day: 'Wed', avg: 2.8, max: 3.4 },
-  { day: 'Thu', avg: 3.3, max: 4.1 },
-  { day: 'Fri', avg: 3.1, max: 3.8 },
-  { day: 'Sat', avg: 2.6, max: 3.2 },
-  { day: 'Sun', avg: 2.4, max: 2.9 },
+    { day: 'Mon', avg: 2.7, max: 3.5 },
+    { day: 'Tue', avg: 3.0, max: 3.8 },
+    { day: 'Wed', avg: 2.8, max: 3.4 },
+    { day: 'Thu', avg: 3.3, max: 4.1 },
+    { day: 'Fri', avg: 3.1, max: 3.8 },
+    { day: 'Sat', avg: 2.6, max: 3.2 },
+    { day: 'Sun', avg: 2.4, max: 2.9 },
 ];
 
 const MAX_VAL = 5;  // tighter ceiling so bars fill the chart nicely
@@ -81,20 +96,10 @@ export default function Analytics() {
                             cursor: 'pointer',
                             marginBottom: '-1px',
                         }}
-                        title={`${d.day} max: ${d.max}m`}
-                      />
-                    </div>
-                    <span
-                      style={{
-                        position: 'absolute', bottom: -20,
-                        fontSize: 11, color: '#64748b', whiteSpace: 'nowrap',
-                      }}
                     >
-                      {d.day}
-                    </span>
-                  </div>
+                        {t}
+                    </button>
                 ))}
-              </div>
             </div>
 
             {/* ── Bar chart card ───────────────────────────────────────────── */}
@@ -254,9 +259,6 @@ export default function Analytics() {
                     ))}
                 </div>
             </div>
-          ))}
-        </div>
-      </div>
 
             {/* ── Status Distribution ──────────────────────────────────────── */}
             {/*
