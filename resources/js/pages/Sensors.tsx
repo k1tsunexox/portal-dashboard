@@ -14,7 +14,6 @@
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useMap } from '../MapContext';
-import { useNavigate } from 'react-router-dom';
 
 interface Device {
   id: number;
@@ -54,7 +53,6 @@ export default function Sensors() {
   const [loading, setLoading] = useState(true);
   const [activeId, setActiveId] = useState<number | null>(null);
   const { flyTo, highlightDevice } = useMap();
-  const navigate = useNavigate();
 
   useEffect(() => {
     axios.get('/api/devices')
@@ -74,10 +72,9 @@ export default function Sensors() {
   }, {} as Record<string, number>);
 
   const handleDeviceClick = (device: Device) => {
-      setActiveId(device.id);
-      flyTo(device.longitude, device.latitude, 14);
-      highlightDevice(device.id);
-      navigate(`/devices/${device.id}`);
+    setActiveId(device.id);
+    flyTo(device.longitude, device.latitude, 14);
+    highlightDevice(device.id);
   };
 
   return (
