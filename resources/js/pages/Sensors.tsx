@@ -41,10 +41,15 @@ function statusChip(status: string) {
   return map[status] ?? { bg: 'rgba(148,163,184,0.18)', text: '#94a3b8' };
 }
 
-function timeAgo(dateStr: string) {
+function timeAgo(dateStr?: string) {
+  if (!dateStr) return 'No data';
+
   const diff = Math.floor((Date.now() - new Date(dateStr).getTime()) / 1000);
-  if (diff < 60)   return `${diff}s ago`;
+
+  if (diff < 0) return 'just now';
+  if (diff < 60) return `${diff}s ago`;
   if (diff < 3600) return `${Math.floor(diff / 60)}m ago`;
+
   return `${Math.floor(diff / 3600)}h ago`;
 }
 
@@ -57,9 +62,33 @@ export default function Sensors() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios.get('/api/devices')
-      .then(res => { setDevices(res.data.data); setLoading(false); })
-      .catch(() => setLoading(false));
+    let cancelled = false;
+
+    async function fetchDevices() {
+      try {
+        const res = await axios.get('/api/devices');
+
+        if (!cancelled) {
+          setDevices(res.data.data ?? []);
+          setLoading(false);
+        }
+      } catch (error) {
+        console.error(error);
+
+        if (!cancelled) {
+          setLoading(false);
+        }
+      }
+    }
+
+    fetchDevices();
+
+    const timer = setInterval(fetchDevices, 5000);
+
+    return () => {
+      cancelled = true;
+      clearInterval(timer);
+    };
   }, []);
 
   const filtered = devices.filter(d =>
