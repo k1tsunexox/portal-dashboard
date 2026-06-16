@@ -12,6 +12,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import { useMap } from '../MapContext';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
@@ -71,6 +72,7 @@ const MAP_STYLES = [
 export default function MapView() {
   const mapContainerRef = useRef<HTMLDivElement | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const navigate = useNavigate();
   const { mapRef, registerMarker } = useMap();
 
   const [devices, setDevices] = useState<Device[]>([]);
@@ -85,6 +87,8 @@ export default function MapView() {
   const [is3D, setIs3D] = useState(false);
   const [mapStyle, setMapStyle] = useState('streets-v12');
   const [showStylePicker, setShowStylePicker] = useState(false);
+
+  
 
   // ── Clear existing markers ────────────────────────────────────────────────
   const clearMarkers = useCallback(() => {
@@ -440,7 +444,15 @@ export default function MapView() {
                 )}
               </div>
               <button
-                onClick={() => setSelectedDevice(null)}
+                 onClick={() => {
+                  setSelectedDevice(null);
+                  mapRef.current?.flyTo({
+                    center: [121.774, 12.879],
+                    zoom: 6,
+                    speed: 1.2,
+                    curve: 1.4,
+                  });
+                }}
                 className="text-slate-500 hover:text-white ml-2 shrink-0 transition-colors"
                 aria-label="Close"
               >
@@ -475,13 +487,13 @@ export default function MapView() {
               )}
 
               <div className="flex gap-2 mt-3">
-                <a
-                  href={`/devices/${selectedDevice.id}`}
+                <button
+                  onClick={() => navigate(`/devices/${selectedDevice.id}`)}
                   className="flex-1 text-center text-xs font-semibold py-2 rounded-lg text-white transition-colors"
                   style={{ background: '#3b82f6' }}
                 >
                   View Details
-                </a>
+                </button>
                 <button
                   onClick={() => {
                     if (!mapRef.current) return;
