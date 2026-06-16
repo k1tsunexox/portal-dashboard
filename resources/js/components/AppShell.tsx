@@ -12,25 +12,23 @@
  *   4. DeviceDetail pop-up      z-30, bottom-right corner (handled by MapView)
  *
  * Routing contract:
- *   /             → redirect to /map (nothing extra shown)
- *   /map          → map only (no side panel)
- *   /overview     → map + Overview side panel
- *   /sensors      → map + Sensors side panel
- *   /alerts       → map + Alerts side panel
- *   /analytics    → map + Analytics side panel
- *   /devices/:id  → map + DeviceDetail side panel
+ *   /          → redirect to /map (nothing extra shown)
+ *   /map       → map only (no side panel)
+ *   /overview  → map + Overview side panel
+ *   /sensors   → map + Sensors side panel
+ *   /alerts    → map + Alerts side panel
+ *   /analytics → map + Analytics side panel
  */
 
 import React, { useEffect, useRef, useState } from 'react';
-import { NavLink, Routes, Route, useLocation } from 'react-router-dom';
+import { NavLink, useLocation } from 'react-router-dom';
 import MapView from '../pages/MapView';
 import Overview from '../pages/Overview';
 import Sensors from '../pages/Sensors';
 import Alerts from '../pages/Alerts';
 import Analytics from '../pages/Analytics';
-import DeviceDetail from '../pages/DeviceDetail';
 
-// ─── Nav items ───────────────────────────────────────────────────────────────
+// ─── Nav items ──────────────────────────────────────────────────────────────
 
 const NAV_ITEMS = [
   { to: '/map',       label: 'Map',       icon: MapIcon       },
@@ -40,24 +38,30 @@ const NAV_ITEMS = [
   { to: '/analytics', label: 'Analytics', icon: BarChartIcon  },
 ];
 
-// Routes that should open the side panel
-const PANEL_PATHS = ['/overview', '/sensors', '/alerts', '/analytics'];
+// Routes that render a side panel. /map has none.
+const PANEL_ROUTES: Record<string, React.ComponentType> = {
+  '/overview':  Overview,
+  '/sensors':   Sensors,
+  '/alerts':    Alerts,
+  '/analytics': Analytics,
+};
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
 export default function AppShell() {
   const location = useLocation();
   const [panelOpen, setPanelOpen] = useState(false);
-  const [panelWidth] = useState(400);
+  const [panelWidth] = useState(400); // px — change to make it wider
   const prevRouteRef = useRef(location.pathname);
 
-  // Panel should open for named routes AND any /devices/:id route
-  const hasPanelNow =
-    PANEL_PATHS.includes(location.pathname) ||
-    location.pathname.startsWith('/devices/');
+  // Determine which panel component (if any) is active
+  const PanelContent = PANEL_ROUTES[location.pathname] ?? null;
 
   // Open/close the side panel whenever the route changes
   useEffect(() => {
+    const hasPanelNow = Boolean(PANEL_ROUTES[location.pathname]);
+    const hadPanelBefore = Boolean(PANEL_ROUTES[prevRouteRef.current]);
+
     if (hasPanelNow && !panelOpen) {
       setPanelOpen(true);
     } else if (!hasPanelNow && panelOpen) {
@@ -129,15 +133,9 @@ export default function AppShell() {
             </button>
           </div>
 
-          {/* Scrollable panel body — all routes rendered here */}
+          {/* Scrollable panel body */}
           <div className="flex-1 overflow-y-auto">
-            <Routes>
-              <Route path="/overview"    element={<Overview />} />
-              <Route path="/sensors"     element={<Sensors />} />
-              <Route path="/alerts"      element={<Alerts />} />
-              <Route path="/analytics"   element={<Analytics />} />
-              <Route path="/devices/:id" element={<DeviceDetail />} />
-            </Routes>
+            {PanelContent && <PanelContent />}
           </div>
         </div>
       </aside>
@@ -181,6 +179,7 @@ export default function AppShell() {
       {/* ── Layer 3b: Top-right status indicator ──────────────────────────── */}
       {/*
         Floats top-right. Shows system time and a live "pulse" indicator.
+        Shifts left when panel is open.
       */}
       <div
         className="absolute top-4 z-30 flex items-center gap-3"
