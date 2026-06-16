@@ -1,103 +1,106 @@
+/**
+ * Overview.tsx
+ *
+ * Redesigned for the dark glass slide-over panel.
+ * Same data as before, dark palette, compact layout that fits the panel width.
+ */
+
 import React from 'react';
 
 const metricCards = [
-    { icon: '📡', label: 'Active Sensors', value: '24', change: '+2 from last hour', trend: '↑', color: '#10b981' },
-    { icon: '💧', label: 'Water Level Avg', value: '3.2m', change: '-0.4m from last hour', trend: '↓', color: '#3b82f6' },
-    { icon: '△', label: 'Active Alerts', value: '3', change: '0 from last hour', trend: '—', color: '#6b7280' },
-    { icon: '〜', label: 'Flow Rate', value: '145 L/s', change: '+12 L/s from last hour', trend: '↑', color: '#10b981' },
+  { icon: '📡', label: 'Active Sensors', value: '24', delta: '+2',  trend: 'up',   color: '#10b981' },
+  { icon: '💧', label: 'Water Level',    value: '3.2m', delta: '-0.4m', trend: 'down', color: '#3b82f6' },
+  { icon: '🔔', label: 'Active Alerts',  value: '3',    delta: '0',     trend: 'flat', color: '#f59e0b' },
+  { icon: '〜', label: 'Flow Rate',      value: '145 L/s', delta: '+12', trend: 'up', color: '#10b981' },
 ];
 
 const recentAlerts = [
-    { id: 'S-003', msg: 'Critical water level detected', time: '2 min ago', level: 'critical' },
-    { id: 'S-001', msg: 'Water level above threshold', time: '15 min ago', level: 'warning' },
-    { id: 'S-008', msg: 'Sensor communication restored', time: '1 hour ago', level: 'info' },
+  { id: 'S-003', msg: 'Critical water level detected', time: '2 min ago', level: 'critical' },
+  { id: 'S-001', msg: 'Water level above threshold',    time: '15 min ago', level: 'warning' },
+  { id: 'S-008', msg: 'Sensor communication restored',  time: '1 hour ago', level: 'info'    },
 ];
 
-function badge(level: string) {
-    const styles: Record<string, React.CSSProperties> = {
-        critical: { background: '#fee2e2', color: '#dc2626' },
-        warning: { background: '#fef3c7', color: '#d97706' },
-        info: { background: '#dbeafe', color: '#2563eb' },
-    };
-    return {
-        padding: '2px 8px',
-        borderRadius: '4px',
-        fontSize: '11px',
-        fontWeight: 600,
-        ...styles[level],
-    } as React.CSSProperties;
-}
+const levelChip: Record<string, { bg: string; text: string; dot: string }> = {
+  critical: { bg: 'rgba(239,68,68,0.18)',   text: '#ef4444', dot: '#ef4444' },
+  warning:  { bg: 'rgba(245,158,11,0.18)',  text: '#f59e0b', dot: '#f59e0b' },
+  info:     { bg: 'rgba(59,130,246,0.18)',  text: '#60a5fa', dot: '#60a5fa' },
+};
+
+const trendIcon: Record<string, string> = { up: '↑', down: '↓', flat: '—' };
 
 export default function Overview() {
-    return (
-        <div style={{ padding: '24px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#111827', margin: '0 0 4px' }}>
-                Dashboard Overview
-            </h1>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 24px' }}>
-                Real-time flood monitoring and sensor status
-            </p>
+  return (
+    <div className="flex flex-col gap-5 px-5 py-4 text-slate-300">
 
-            {/* Metric Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '16px', marginBottom: '24px' }}>
-                {metricCards.map(card => (
-                    <div key={card.label} style={{
-                        background: '#fff',
-                        border: '1px solid #e5e7eb',
-                        borderRadius: '10px',
-                        padding: '20px',
-                    }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
-                            <span style={{ fontSize: '20px' }}>{card.icon}</span>
-                            <span style={{ color: card.color, fontSize: '16px', fontWeight: 600 }}>{card.trend}</span>
-                        </div>
-                        <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 4px' }}>{card.label}</p>
-                        <p style={{ fontSize: '24px', fontWeight: 600, color: '#111827', margin: '0 0 4px' }}>{card.value}</p>
-                        <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>{card.change}</p>
-                    </div>
-                ))}
+      {/* Header */}
+      <div>
+        <h2 className="text-white font-semibold text-base">Dashboard Overview</h2>
+        <p className="text-slate-500 text-xs mt-0.5">Real-time flood monitoring</p>
+      </div>
+
+      {/* Metric Cards — 2×2 grid */}
+      <div className="grid grid-cols-2 gap-2.5">
+        {metricCards.map(card => (
+          <div
+            key={card.label}
+            className="rounded-xl p-3.5"
+            style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)' }}
+          >
+            <div className="flex justify-between items-start mb-2">
+              <span className="text-base">{card.icon}</span>
+              <span className="text-xs font-bold" style={{ color: card.color }}>
+                {trendIcon[card.trend]} {card.delta}
+              </span>
             </div>
+            <p className="text-slate-400 text-xs mb-1">{card.label}</p>
+            <p className="text-white text-xl font-bold">{card.value}</p>
+          </div>
+        ))}
+      </div>
 
-            {/* Bottom Row */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 320px', gap: '16px' }}>
-                {/* Chart */}
-                <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '24px' }}>
-                    <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 16px' }}>
-                        24-Hour Water Level Trend
-                    </h2>
-                    <div style={{
-                        height: '220px',
-                        background: '#f0f9ff',
-                        borderRadius: '8px',
-                        display: 'flex',
-                        alignItems: 'center',
-                        justifyContent: 'center',
-                        color: '#93c5fd',
-                        fontSize: '14px',
-                    }}>
-                        Chart loads here once Backend API is ready
-                    </div>
+      {/* Recent Alerts */}
+      <div>
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">Recent Alerts</h3>
+        <div className="flex flex-col gap-1.5">
+          {recentAlerts.map(alert => {
+            const chip = levelChip[alert.level];
+            return (
+              <div
+                key={alert.id}
+                className="flex items-start gap-3 p-3 rounded-xl"
+                style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+              >
+                <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: chip.dot }} />
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-0.5">
+                    <span className="text-white text-xs font-semibold">{alert.id}</span>
+                    <span
+                      className="text-xs font-semibold px-1.5 py-0.5 rounded-md"
+                      style={{ background: chip.bg, color: chip.text }}
+                    >
+                      {alert.level}
+                    </span>
+                  </div>
+                  <p className="text-slate-400 text-xs truncate">{alert.msg}</p>
+                  <p className="text-slate-600 text-xs mt-0.5">{alert.time}</p>
                 </div>
-
-                {/* Recent Alerts */}
-                <div style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '24px' }}>
-                    <h2 style={{ fontSize: '15px', fontWeight: 600, color: '#111827', margin: '0 0 16px' }}>
-                        Recent Alerts
-                    </h2>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-                        {recentAlerts.map(alert => (
-                            <div key={alert.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
-                                <div>
-                                    <p style={{ fontSize: '13px', fontWeight: 600, color: '#111827', margin: '0 0 2px' }}>{alert.id}</p>
-                                    <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 2px' }}>{alert.msg}</p>
-                                    <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>{alert.time}</p>
-                                </div>
-                                <span style={badge(alert.level)}>{alert.level}</span>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </div>
+              </div>
+            );
+          })}
         </div>
-    );
+      </div>
+
+      {/* Chart placeholder */}
+      <div>
+        <h3 className="text-xs font-semibold uppercase tracking-widest text-slate-500 mb-3">24-Hour Trend</h3>
+        <div
+          className="rounded-xl flex items-center justify-center h-32 text-slate-600 text-xs text-center"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+        >
+          Chart renders once<br />API data is connected
+        </div>
+      </div>
+
+    </div>
+  );
 }
