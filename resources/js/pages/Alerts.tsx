@@ -1,117 +1,121 @@
+/**
+ * Alerts.tsx
+ *
+ * Redesigned for the dark glass slide-over panel.
+ * Compact, scannable alert list with active/resolved tabs.
+ */
+
 import React, { useState } from 'react';
 
 const alertsData = [
-    { id: 'S-003', location: 'Industrial Zone B', msg: 'Critical water level detected - Immediate action required', time: '2 min ago', date: '2026-06-11 14:32', level: 'critical' },
-    { id: 'S-001', location: 'Downtown Station A', msg: 'Water level above threshold', time: '15 min ago', date: '2026-06-11 14:19', level: 'warning' },
-    { id: 'S-007', location: 'North Gate Monitor', msg: 'Water level rising rapidly', time: '28 min ago', date: '2026-06-11 14:06', level: 'warning' },
-    { id: 'S-005', location: 'Bridge Checkpoint', msg: 'Sensor back online', time: '1 hour ago', date: '2026-06-11 13:34', level: 'info' },
+  { id: 'S-003', location: 'Industrial Zone B',   msg: 'Critical water level — immediate action required', time: '2 min ago',  level: 'critical' },
+  { id: 'S-001', location: 'Downtown Station A',  msg: 'Water level above threshold',                      time: '15 min ago', level: 'warning'  },
+  { id: 'S-007', location: 'North Gate Monitor',  msg: 'Water level rising rapidly',                       time: '28 min ago', level: 'warning'  },
+  { id: 'S-005', location: 'Bridge Checkpoint',   msg: 'Sensor back online',                               time: '1 hour ago', level: 'info'     },
 ];
 
 const resolvedData = [
-    { id: 'S-002', location: 'Riverside Monitor', msg: 'Water level normalized', time: '2 hours ago', date: '2026-06-11 12:30', level: 'info' },
-    { id: 'S-004', location: 'Residential Area C', msg: 'Battery level restored', time: '3 hours ago', date: '2026-06-11 11:15', level: 'info' },
-    { id: 'S-006', location: 'East Valley Sensor', msg: 'Signal strength recovered', time: '5 hours ago', date: '2026-06-11 09:00', level: 'info' },
+  { id: 'S-002', location: 'Riverside Monitor',   msg: 'Water level normalized',      time: '2 hours ago', level: 'info' },
+  { id: 'S-004', location: 'Residential Area C',  msg: 'Battery level restored',      time: '3 hours ago', level: 'info' },
+  { id: 'S-006', location: 'East Valley Sensor',  msg: 'Signal strength recovered',   time: '5 hours ago', level: 'info' },
 ];
 
-function levelIcon(level: string) {
-    if (level === 'critical') return { icon: '🔴', badge: { background: '#fee2e2', color: '#dc2626' } };
-    if (level === 'warning') return { icon: '🟡', badge: { background: '#fef3c7', color: '#d97706' } };
-    return { icon: '🔵', badge: { background: '#dbeafe', color: '#2563eb' } };
-}
+const levelConfig: Record<string, { bg: string; text: string; dot: string; label: string }> = {
+  critical: { bg: 'rgba(239,68,68,0.18)',  text: '#ef4444', dot: '#ef4444', label: 'Critical' },
+  warning:  { bg: 'rgba(245,158,11,0.18)', text: '#f59e0b', dot: '#f59e0b', label: 'Warning'  },
+  info:     { bg: 'rgba(59,130,246,0.18)', text: '#60a5fa', dot: '#60a5fa', label: 'Info'     },
+};
 
 export default function Alerts() {
-    const [tab, setTab] = useState<'active' | 'resolved'>('active');
-    const list = tab === 'active' ? alertsData : resolvedData;
+  const [tab, setTab] = useState<'active' | 'resolved'>('active');
+  const list = tab === 'active' ? alertsData : resolvedData;
 
-    return (
-        <div style={{ padding: '24px' }}>
-            <h1 style={{ fontSize: '22px', fontWeight: 600, color: '#111827', margin: '0 0 4px' }}>
-                Alerts & Notifications
-            </h1>
-            <p style={{ fontSize: '14px', color: '#6b7280', margin: '0 0 20px' }}>
-                Monitor and manage system alerts
-            </p>
+  const critCount = alertsData.filter(a => a.level === 'critical').length;
+  const warnCount = alertsData.filter(a => a.level === 'warning').length;
 
-            {/* Summary Cards */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
-                {[
-                    { icon: '🔴', label: 'Critical Alerts', value: '1' },
-                    { icon: '🟡', label: 'Warnings', value: '2' },
-                    { icon: '✅', label: 'Resolved Today', value: '3' },
-                ].map(card => (
-                    <div key={card.label} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                        <span style={{ fontSize: '24px' }}>{card.icon}</span>
-                        <div>
-                            <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 2px' }}>{card.label}</p>
-                            <p style={{ fontSize: '28px', fontWeight: 600, color: '#111827', margin: 0 }}>{card.value}</p>
-                        </div>
-                    </div>
-                ))}
-            </div>
+  return (
+    <div className="flex flex-col h-full text-slate-300">
 
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: '8px', marginBottom: '16px' }}>
-                {(['active', 'resolved'] as const).map(t => (
-                    <button
-                        key={t}
-                        onClick={() => setTab(t)}
-                        style={{
-                            padding: '6px 16px',
-                            borderRadius: '6px',
-                            border: '1px solid #e5e7eb',
-                            background: tab === t ? '#111827' : '#fff',
-                            color: tab === t ? '#fff' : '#6b7280',
-                            fontSize: '13px',
-                            fontWeight: 500,
-                            cursor: 'pointer',
-                        }}
+      {/* Summary strip */}
+      <div className="flex gap-3 px-5 pt-4 pb-3 border-b border-white/10 shrink-0">
+        {[
+          { label: 'Critical', count: critCount,        color: '#ef4444' },
+          { label: 'Warning',  count: warnCount,        color: '#f59e0b' },
+          { label: 'Resolved', count: resolvedData.length, color: '#10b981' },
+        ].map(({ label, count, color }) => (
+          <div key={label} className="flex-1 rounded-xl p-3" style={{ background: 'rgba(255,255,255,0.05)' }}>
+            <div className="text-xl font-bold" style={{ color }}>{count}</div>
+            <div className="text-xs text-slate-500 mt-0.5">{label}</div>
+          </div>
+        ))}
+      </div>
+
+      {/* Tabs */}
+      <div className="flex gap-2 px-4 py-3 border-b border-white/10 shrink-0">
+        {(['active', 'resolved'] as const).map(t => (
+          <button
+            key={t}
+            onClick={() => setTab(t)}
+            className="flex-1 py-1.5 rounded-lg text-xs font-semibold transition-all"
+            style={{
+              background: tab === t ? '#3b82f6' : 'rgba(255,255,255,0.06)',
+              color: tab === t ? '#fff' : '#64748b',
+              border: tab === t ? 'none' : '1px solid rgba(255,255,255,0.08)',
+            }}
+          >
+            {t === 'active' ? `Active (${alertsData.length})` : `Resolved (${resolvedData.length})`}
+          </button>
+        ))}
+      </div>
+
+      {/* Alert list */}
+      <div className="flex-1 overflow-y-auto py-2">
+        {list.map((alert, i) => {
+          const cfg = levelConfig[alert.level];
+          return (
+            <div
+              key={i}
+              className="mx-3 mb-2 rounded-xl p-3.5"
+              style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+            >
+              <div className="flex items-start gap-3">
+                {/* Dot */}
+                <div className="w-2 h-2 rounded-full mt-1.5 shrink-0" style={{ background: cfg.dot, boxShadow: `0 0 0 3px ${cfg.dot}33` }} />
+
+                <div className="flex-1 min-w-0">
+                  <div className="flex items-center gap-2 mb-1">
+                    <span className="text-white text-xs font-semibold">{alert.id}</span>
+                    <span
+                      className="text-xs font-semibold px-1.5 py-0.5 rounded-md shrink-0"
+                      style={{ background: cfg.bg, color: cfg.text }}
                     >
-                        {t === 'active' ? `Active (${alertsData.length})` : `Resolved (${resolvedData.length})`}
-                    </button>
-                ))}
-            </div>
+                      {cfg.label}
+                    </span>
+                  </div>
+                  <p className="text-slate-500 text-xs mb-1">{alert.location}</p>
+                  <p className="text-slate-300 text-xs">{alert.msg}</p>
+                  <p className="text-slate-600 text-xs mt-1.5">🕐 {alert.time}</p>
+                </div>
+              </div>
 
-            {/* Alert List */}
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                {list.map((alert, i) => {
-                    const { icon, badge } = levelIcon(alert.level);
-                    return (
-                        <div key={i} style={{ background: '#fff', border: '1px solid #e5e7eb', borderRadius: '10px', padding: '20px' }}>
-                            <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-                                <span style={{ fontSize: '20px', marginTop: '2px' }}>{icon}</span>
-                                <div style={{ flex: 1 }}>
-                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '4px' }}>
-                                        <span style={{ fontSize: '14px', fontWeight: 600, color: '#111827' }}>{alert.id}</span>
-                                        <span style={{ ...badge, padding: '1px 8px', borderRadius: '4px', fontSize: '11px', fontWeight: 600 }}>
-                                            {alert.level}
-                                        </span>
-                                    </div>
-                                    <p style={{ fontSize: '13px', color: '#6b7280', margin: '0 0 2px' }}>{alert.location}</p>
-                                    <p style={{ fontSize: '14px', color: '#374151', margin: '0 0 8px' }}>{alert.msg}</p>
-                                    <p style={{ fontSize: '12px', color: '#9ca3af', margin: 0 }}>🕐 {alert.time} · {alert.date}</p>
-                                </div>
-                            </div>
-                            {tab === 'active' && (
-                                <div style={{ display: 'flex', gap: '8px', marginTop: '12px', paddingLeft: '32px' }}>
-                                    {['Acknowledge', 'Resolve'].map(btn => (
-                                        <button key={btn} style={{
-                                            padding: '6px 14px',
-                                            border: '1px solid #e5e7eb',
-                                            borderRadius: '6px',
-                                            background: '#fff',
-                                            color: '#374151',
-                                            fontSize: '13px',
-                                            cursor: 'pointer',
-                                        }}>
-                                            {btn}
-                                        </button>
-                                    ))}
-                                </div>
-                            )}
-                        </div>
-                    );
-                })}
+              {/* Action buttons for active alerts */}
+              {tab === 'active' && alert.level !== 'info' && (
+                <div className="flex gap-2 mt-3">
+                  {['Acknowledge', 'Resolve'].map(label => (
+                    <button
+                      key={label}
+                      className="flex-1 text-xs font-medium py-1.5 rounded-lg text-slate-300 hover:text-white transition-colors"
+                      style={{ background: 'rgba(255,255,255,0.08)', border: '1px solid rgba(255,255,255,0.10)' }}
+                    >
+                      {label}
+                    </button>
+                  ))}
+                </div>
+              )}
             </div>
-        </div>
-    );
+          );
+        })}
+      </div>
+    </div>
+  );
 }
