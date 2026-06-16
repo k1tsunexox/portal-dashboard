@@ -69,10 +69,10 @@ If all of the required dependencies have been installed, proceed here.
 
 **Checklist**:
 
-- [] Database
-- [] `.env` file setup
-- [] `composer` setup
-- [] `npm` and `php` setup
+- [ ] Database
+- [ ] `.env` file setup
+- [ ] `composer` setup
+- [ ] `npm` and `php` setup
 
 ## Database setup
 
