@@ -1,29 +1,107 @@
-## After cloning
+# GUIDES
+
+This guide covers installation, configuration, and running of the project.
+
+## Required dependencies
+
+- List of [dependencies](#installing-dependencies)
+
+## Fresh setup 
+
+If the dependencies have been installed, but not yet configured for the project:
+
+- [Database](#database-setup)
+- [`.env` setup](#env-file-setup)
+- [composer setup](#composer-setup)
+- [npm and php setup](#npm-and-php-setup)
+
+## After `git fetch` and `git pull`
+
+- [Frontend changes](#frontend-changes)
+- [Backend changes](#backend-changes) (`Controllers/`, `Models/`, `migrations/`)
+- [Route changes](#route-changes) (`routes/`, `config/`)
+- [Database changes](#database-changes)
+
+## Running the webiste
+
+- [Run the website](#running-the-website)
+
+---
+
+## Installing dependencies
+
+Make sure to have the following dependencies installed:
+
+- [Composer](https://getcomposer.org/download/)
+- [Laravel 13](https://laravel.com/docs/13.x/installation#installing-php)
+- [Php 8.3 or higher](https://www.php.net/downloads.php?os=windows&osvariant=windows-native&version=default&multiversion=Y)
+- [Node.js](https://nodejs.org/en/download) (as it includes `npm`)
+- Database
+  - [XAMPP](https://www.apachefriends.org/download.html)
+  - [MariaDB](https://mariadb.org/download/?t=mariadb&p=mariadb&r=12.3.2&os=windows&cpu=x86_64&pkg=msi&mirror=ossplanet)
+  - SQLite
+    - [CLI tools](https://sqlite.org/download.html)
+    - [GUI](https://sqlitebrowser.org/dl/)
+
+
+## Verify PHP
+
+Check php version by running: `php -v`. If version is < 8.3:
+
+**Windows**:
+
+Set your system environment PATH variables to use the latest (in your local device) version of PHP. 
+
+Look for the `php.exe` directory, and copy the directory as a text, e.g. `C:\Program Files\PHP\current`
+
+> [!WARNING]
+> **DO NOT INCLUDE** php.exe: \
+> WRONG: `C:\Program Files\PHP\current\php.exe` \
+> CORRECT: ``C:\Program Files\PHP\current``
+
+**Linux**:
+
+For Linux users, you may want to consider upgrading PHP. Check you distro's official documentation on how to update PHP.
+
+## For fresh setup
+
+If all of the required dependencies have been installed, proceed here.
+
+**Checklist**:
+
+- [] Database
+- [] `.env` file setup
+- [] `composer` setup
+- [] `npm` and `php` setup
+
+## Database setup
 
 Setup your database.
 
 **For Windows:**
 
-- [XAMPP](###-XAMPP) (phpmyadmin)
-- [MariaDB](###-MariaDB) (mysql)
-- [SQLite](####-Windows-setup)
+- [XAMPP](#xampp) (phpmyadmin)
+- [MariaDB](#mariadb) (mysql)
+- [SQLite](#windows-setup)
 
 **For Linux:**
 
-- [MariaDB](###-MariaDB) (mysql)
-- [SQLite](####-Linux-setup)
+- [MariaDB](#mariadb) (mysql)
+- [SQLite](#linux-setup)
 
 ### SQLite
 
 Create a `.sqlite` file:
 
 #### Linux setup
+
 ```bash
 # for linux users
 touch database/database.sqlite
 ```
 
 #### Windows setup
+
 ```powershell
 # for powershell users
 code database/database.sqlite
@@ -32,7 +110,7 @@ code database/database.sqlite
 New-Item -ItemType File database/database.sqlite -Force
 ```
 
-Then proceed to [SQLite `.env` setup](##-`.env`-file-setup)
+Then proceed to [SQLite `.env` setup](#for-sqlite-users)
 
 ### MariaDB
 
@@ -112,9 +190,9 @@ Set your `.env` file to:
 ```env
 DB_CONNECTION=sqlite
 DB_DATABASE=/path/to/database/database.sqlite
+
 # DB_HOST=127.0.0.1
 # DB_PORT=3306
-# DB_DATABASE=portal_dashboard
 # DB_USERNAME=<your_username>
 # DB_PASSWORD=<your_password>
 ```
@@ -150,13 +228,105 @@ php artisan migrate
 
 # seed the tables
 php artisan db:seed
+```
 
-# for full local reset
+## After fetch and pull (with database, with `.env` file)
+
+```bash
+# if from another branch
+git checkout main
+
+# if already in main branch
+git fetch
+git pull origin main
+```
+
+### Frontend changes
+
+If changes are made in the frontend files:
+
+- `*.jsx`,
+- `*.tsx`,
+- `*.js`,
+- `*.css`, 
+- etc.
+
+```bash
+npm run dev
+```
+
+Run this if dependencies have changed (`package.json` or `package-lock.json`):
+
+```bash
+npm install
+```
+
+### Backend changes
+
+If changes are made in the following directories:
+
+- `./app/Http/Controllers/`, 
+- `./app/Models/`, 
+- `./database/migrations/`
+
+```bash
+composer install
+php artisan migrate
+```
+
+If there are any errors (especially those related to `unknown column values`), you may want to check [database changes](#database-changes).
+
+### Route changes
+
+If changes are made in the following directories:
+
+- `routes/`, 
+- `config/`,
+- `.env` 
+
+```bash
+php artisan optimize:clear
+php artisan migrate
+```
+
+Run these if there are changes in the dependency files (`composer.json` or `composer.lock`):
+
+```bash
+composer install
+npm install
+```
+
+### Database changes
+
+If there are any changes to the database such as:
+
+- new table
+- new column
+- changed column
+- new migration file
+
+Try this first:
+
+```bash
+php artisan migrate
+```
+
+If there is still an error, you may want to consider a full database reset:
+
+```bash
 php artisan migrate:fresh --seed
 ```
 
+> [!WARNING]
+> Running this command will delete all existing local database tables and data, then recreate and seed them. Only run this when needed.
+
+## Running the website
+
 Run `npm run dev` and `php artisan serve` on two different terminals, simultaneously.
+
+Open `http://127.0.0.1:8000` or `http://localhost:8000`.
 
 > [!WARNING]
 > **DO NOT FORGET** to open/start your database before running
 > `npm run dev` and `php artisan serve`.
+
