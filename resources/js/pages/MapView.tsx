@@ -1,3 +1,25 @@
+/**
+ * MapView.tsx
+ *
+ * Full-viewport Mapbox map. Responsibilities:
+ *  - Renders as 100% of its container (AppShell makes that 100vw × 100vh).
+ *  - Fetches devices and drops markers.
+ *  - On marker click: shows a floating DeviceDetailCard instead of navigating away.
+ *  - Exposes flyTo + highlightDevice via MapContext so sidebar items can control the camera.
+ *  - Floating controls: search/filter bar (top-left), map style + 2D/3D toggle (bottom-right).
+ *
+ * What changed from the original:
+ *  - Removed `navigate('/devices/:id')` on marker click → replaced with in-map card.
+ *  - Wired to MapContext so siblings can call flyTo().
+ *  - Floating overlay structure is now Tailwind-based and theme-consistent.
+ *  - height: calc(100vh - 52px) removed — this component now OWNS the viewport.
+ *  - Added safer Mapbox token checking.
+ *  - Added safer map container checking.
+ *  - Added marker cleanup to avoid duplicate markers.
+ *  - Made API response handling work with both `res.data.data` and plain `res.data`.
+ *  - Converted latitude/longitude to numbers before passing them to Mapbox.
+ */
+
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import mapboxgl from 'mapbox-gl';
 import axios from 'axios';
@@ -269,42 +291,6 @@ export default function MapView() {
       mapRef.current.setTerrain(null as any);
       mapRef.current.easeTo({ pitch: 0, bearing: 0, duration: 800 });
     }
-    setIs3D(prev => !prev);
-  };
-
-  // ── Change map style ──────────────────────────────────────────────────────
-  const changeStyle = (styleId: string) => {
-    if (!mapRef.current) return;
-    setMapStyle(styleId);
-    setShowStylePicker(false);
-    mapRef.current.setStyle(`mapbox://styles/mapbox/${styleId}`);
-    mapRef.current.once('styledata', () => dropMarkers(filteredDevices));
-  };
-
-  // ─────────────────────────────────────────────────────────────────────────
-
-  const panelStyle: React.CSSProperties = {
-    background: 'rgba(15, 23, 42, 0.88)',
-    backdropFilter: 'blur(16px)',
-    WebkitBackdropFilter: 'blur(16px)',
-    border: '1px solid rgba(255,255,255,0.10)',
-    boxShadow: '0 8px 32px rgba(0,0,0,0.40)',
-    borderRadius: '16px',
-  };
-
-  const { bg: selBg, text: selText } = selectedDevice
-    ? statusLabel(selectedDevice.status)
-    : { bg: '', text: '' };
-
-  return (
-    <div className="relative inset-0 w-full h-full overflow-hidden">
-
-      {/* ── Map canvas ────────────────────────────────────────────────────── */}
-      <div
-        ref={mapContainerRef}
-        className="absolute inset-0 w-full h-full"
-        style={{ cursor: 'grab', zIndex: 1 }}
-      />
 
     setIs3D(prev => !prev);
   };
@@ -438,7 +424,7 @@ export default function MapView() {
                 : '1px solid rgba(255,255,255,0.10)',
             }}
           >
-            {is3D ? '2D' : '3D'}
+            {is3D ? '🗺️ 2D' : '🏔️ 3D'}
           </button>
 
           {/* Style picker */}
@@ -448,7 +434,7 @@ export default function MapView() {
               className="w-full text-xs font-semibold py-2.5 px-3 rounded-xl flex items-center justify-center gap-1.5 text-slate-300 transition-all"
               style={panelStyle}
             >
-              Style
+              🎨 Style
             </button>
 
             {showStylePicker && (
@@ -633,7 +619,7 @@ export default function MapView() {
                   className="px-3 py-2 rounded-lg text-slate-300 text-xs font-semibold transition-colors hover:text-white"
                   style={{ background: 'rgba(255,255,255,0.08)' }}
                 >
-                  🔍 Zoom in
+                  🎯 Zoom in
                 </button>
               </div>
             </div>
