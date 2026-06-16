@@ -1,10 +1,3 @@
-/**
- * Overview.tsx
- *
- * Redesigned for the dark glass slide-over panel.
- * Same data as before, dark palette, compact layout that fits the panel width.
- */
-
 import React from 'react';
 
 const metricCards = [
@@ -27,6 +20,29 @@ const levelChip: Record<string, { bg: string; text: string; dot: string }> = {
 };
 
 const trendIcon: Record<string, string> = { up: '↑', down: '↓', flat: '—' };
+
+// ── Custom Tooltip ───────────────────────────────────────────────────────────
+
+function WaterTooltip({ active, payload, label }: any) {
+  if (!active || !payload?.length) return null;
+  return (
+    <div
+      style={{
+        background: 'rgba(15,23,42,0.92)',
+        border: '1px solid rgba(59,130,246,0.3)',
+        borderRadius: 10,
+        padding: '8px 12px',
+      }}
+    >
+      <p style={{ color: '#94a3b8', fontSize: 11, marginBottom: 2 }}>{label}</p>
+      <p style={{ color: '#3b82f6', fontSize: 13, fontWeight: 700 }}>
+        {payload[0].value.toFixed(2)} m
+      </p>
+    </div>
+  );
+}
+
+// ── Main Component ───────────────────────────────────────────────────────────
 
 export default function Overview() {
   return (

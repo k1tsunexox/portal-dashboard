@@ -1,25 +1,3 @@
-/**
- * AppShell.tsx
- *
- * The outermost layout wrapper. Keeps MapView mounted 100% of the time as
- * the literal background layer. All other views (Overview, Sensors, Alerts…)
- * slide in as floating panels on top — the map is never unmounted or hidden.
- *
- * Layer stack (bottom → top):
- *   1. <MapView />              absolute, 100vw × 100vh, z-0
- *   2. Floating nav pill        z-10, bottom-left
- *   3. Side-panel slide-over    z-20, left edge
- *   4. DeviceDetail pop-up      z-30, bottom-right corner (handled by MapView)
- *
- * Routing contract:
- *   /          → redirect to /map (nothing extra shown)
- *   /map       → map only (no side panel)
- *   /overview  → map + Overview side panel
- *   /sensors   → map + Sensors side panel
- *   /alerts    → map + Alerts side panel
- *   /analytics → map + Analytics side panel
- */
-
 import React, { useEffect, useRef, useState } from 'react';
 import { NavLink, useLocation } from 'react-router-dom';
 import MapView from '../pages/MapView';
@@ -121,8 +99,7 @@ export default function AppShell() {
           {/* Panel header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-white/10 shrink-0">
             <div className="flex items-center gap-2.5">
-              <span className="text-blue-400 text-lg">🌊</span>
-              <span className="text-white font-semibold text-sm tracking-tight">FloodWatch</span>
+              <span className="text-white font-semibold text-sm tracking-tight">Flood Portal Dashboard</span>
             </div>
             <button
               onClick={handleClosePanel}
