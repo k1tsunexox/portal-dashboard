@@ -174,6 +174,8 @@ class DeviceController extends Controller
                 'status' => $waterLevelStatus === 'critical' ? 'critical' : 'online',
                 'last_seen_at' => now()
             ]);
+
+            $device->refresh();
         }
 
         $readings = $device->readings()
@@ -190,7 +192,7 @@ class DeviceController extends Controller
                 'recorded_at'
             ])
             ->orderByDesc('recorded_at')
-            ->limit(20)
+            ->limit(10)
             ->get();
 
         return response()->json([
@@ -198,7 +200,12 @@ class DeviceController extends Controller
                 'id' => $device->id,
                 'name' => $device->name,
                 'location_name' => $device->location_name,
+                'area' => $device->area,
+                'elevation' => $device->elevation,
+                'latitude' => $device->latitude,
+                'longitude' => $device->longitude,
                 'status' => $device->status,
+                'installed_at' => $device->installed_at,
                 'last_seen_at' => $device->last_seen_at
             ],
             'inserted' => $shouldInsert,

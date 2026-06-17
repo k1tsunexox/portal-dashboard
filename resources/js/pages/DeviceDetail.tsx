@@ -40,10 +40,19 @@ function statusBg(status: string) {
     return 'rgba(16,185,129,0.15)';
 }
 
-function formatDate(str: string) {
-    return new Date(str).toLocaleString('en-PH', {
-        month: 'short', day: 'numeric',
-        hour: '2-digit', minute: '2-digit', second: '2-digit',
+function formatDate(str?: string) {
+    if (!str) return '—';
+
+    const date = new Date(str);
+
+    if (Number.isNaN(date.getTime())) return '—';
+
+    return date.toLocaleString('en-PH', {
+        month: 'short',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit',
     });
 }
 
