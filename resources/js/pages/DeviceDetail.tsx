@@ -55,10 +55,47 @@ export default function DeviceDetail() {
     const [error, setError] = useState(false);
 
     useEffect(() => {
-        axios.get(`/api/devices/${id}`)
-            .then(res => { setDevice(res.data.data); setLoading(false); })
-            .catch(() => { setError(true); setLoading(false); });
-    }, [id]);
+        if (!id) return;
+
+        let cancelled = false;
+
+        async function fetchDevice() {
+            try {
+            const res = await axios.get(`/api/devices/${id}/stream`);
+
+            if (!cancelled) {
+                setDevice({
+                ...res.data.device,
+                area: res.data.device.area ?? '',
+                elevation: res.data.device.elevation ?? '',
+                latitude: String(res.data.device.latitude ?? ''),
+                longitude: String(res.data.device.longitude ?? ''),
+                installed_at: res.data.device.installed_at ?? '',
+                readings: res.data.data ?? [],
+                });
+
+                setLoading(false);
+                setError(false);
+            }
+            } catch (error) {
+            console.error(error);
+
+            if (!cancelled) {
+                setError(true);
+                setLoading(false);
+            }
+            }
+        }
+
+        fetchDevice();
+
+        const timer = setInterval(fetchDevice, 5000);
+
+        return () => {
+            cancelled = true;
+            clearInterval(timer);
+        };
+        }, [id]);
 
     if (loading) return (
         <div style={{ padding: '20px', color: '#94a3b8', fontSize: '13px' }}>

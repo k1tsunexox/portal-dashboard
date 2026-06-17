@@ -98,21 +98,50 @@ class DeviceController extends Controller
         if($shouldInsert) {
             /**
              * Checks if the column value is null.
-             * If null, set to 1.00, 90, or -70 
-             * otherwise, keep value
+             * If null, set to realistic starting demo values,
+             * otherwise, use the latest recorded value.
              */
-            $baseWaterLevel = $latestReading?->water_level_m ?? 1.00;
-            $baseBattery = $latestReading?->battery_pct ?? 90;
-            $baseSignalDbm = $latestReading?->signal_strength_dbm ?? -70;
+            $baseWaterLevel = (float) ($latestReading?->water_level_m ?? 2.20);
+            $baseRainfall = (float) ($latestReading?->rainfall_mm ?? 5.00);
+            $baseFlowSpeed = (float) ($latestReading?->flow_speed_mps ?? 0.80);
+            $baseBattery = (int) ($latestReading?->battery_pct ?? 90);
+            $baseSignalDbm = (int) ($latestReading?->signal_strength_dbm ?? -70);
 
             /**
-             * Simulates changes in water level, 
-             * battery percent, signal dbm, and 
-             * signal percent within a valid range.
+             * Simulates changes in water level using a balanced random walk.
+             * Movement can go up or down by the same range so the value
+             * does not continuously increase.
              */
-            $waterLevel = max(0, min(8, $baseWaterLevel + (random_int(-20, 30) / 100)));
-            $batteryPct = max(0, min(100, $baseBattery - random_int(0, 1)));
-            $signalDbm = max(-100, min(-40, $baseSignalDbm + random_int(-3, 3)));
+            $waterDelta = random_int(-18, 18) / 100;
+            $waterLevel = max(0.30, min(6.50, $baseWaterLevel + $waterDelta));
+
+            /**
+             * Simulates rainfall with small changes from the previous value.
+             * Avoids sudden unrealistic jumps on every stream request.
+             */
+            $rainfallDelta = random_int(-15, 20) / 10;
+            $rainfall = max(0, min(80, $baseRainfall + $rainfallDelta));
+
+            /**
+             * Simulates flow speed based partly on the current water level
+             * and partly on small random variation.
+             */
+            $targetFlowSpeed = 0.40 + ($waterLevel * 0.18);
+            $flowSpeed = ($baseFlowSpeed * 0.70) + ($targetFlowSpeed * 0.30) + (random_int(-8, 8) / 100);
+            $flowSpeed = max(0.10, min(2.50, $flowSpeed));
+
+            /**
+             * Simulates battery percent with slower drain.
+             * Battery only decreases occasionally instead of every request.
+             */
+            $batteryDrain = random_int(1, 100) <= 15 ? 1 : 0;
+            $batteryPct = max(0, min(100, $baseBattery - $batteryDrain));
+
+            /**
+             * Simulates signal dbm and signal percent within a valid range.
+             * Signal fluctuates around the previous value.
+             */
+            $signalDbm = max(-100, min(-40, $baseSignalDbm + random_int(-2, 2)));
             $signalPct = max(0, min(100, ($signalDbm + 100) * 2));
             
             /**
@@ -133,8 +162,8 @@ class DeviceController extends Controller
             $device->readings()->create([
                 'water_level_m' => round($waterLevel, 2),
                 'water_level_status' => $waterLevelStatus,
-                'rainfall_mm' => round(random_int(0, 300) / 10, 2),
-                'flow_speed_mps' => round(random_int(10, 300) / 100, 2),
+                'rainfall_mm' => round($rainfall, 2),
+                'flow_speed_mps' => round($flowSpeed, 2),
                 'battery_pct' => $batteryPct,
                 'signal_strength_dbm' => $signalDbm,
                 'signal_strength_pct' => $signalPct,
@@ -161,7 +190,7 @@ class DeviceController extends Controller
                 'recorded_at'
             ])
             ->orderByDesc('recorded_at')
-            ->limit(10)
+            ->limit(20)
             ->get();
 
         return response()->json([
