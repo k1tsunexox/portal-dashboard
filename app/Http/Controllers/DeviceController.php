@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Device;
+use App\Models\AlertTemplate;
 use Illuminate\Http\Request;
 
 class DeviceController extends Controller
@@ -157,9 +158,11 @@ class DeviceController extends Controller
             }
 
             /**
-             * Insert values into the table. 
+             * Insert values into the readings table.
+             * The created reading is stored in a variable so it can be
+             * referenced later if alert logic needs reading details.
              */
-            $device->readings()->create([
+            $reading = $device->readings()->create([
                 'water_level_m' => round($waterLevel, 2),
                 'water_level_status' => $waterLevelStatus,
                 'rainfall_mm' => round($rainfall, 2),
@@ -170,8 +173,58 @@ class DeviceController extends Controller
                 'recorded_at' => now()
             ]);
 
+            /**
+             * Find the matching alert template for water level alerts.
+             * This is useful if alert_template_id is required or used
+             * for displaying alert titles/messages later.
+             */
+            $alertTemplate = null;
+
+            if(in_array($waterLevelStatus, ['warning', 'critical'])) {
+                $alertTemplate = AlertTemplate::where('alert_type', 'water_level')
+                    ->where('alert_level', $waterLevelStatus)
+                    ->first();
+            }
+
+            /**
+             * Creates or updates an active water level alert when the
+             * current reading reaches warning or critical status.
+             */
+            if(in_array($waterLevelStatus, ['warning', 'critical'])) {
+                $device->alerts()->updateOrCreate(
+                    [
+                        'alert_type' => 'water_level',
+                        'is_active' => true,
+                    ],
+                    [
+                        'alert_template_id' => $alertTemplate?->id,
+                        'alert_level' => $waterLevelStatus,
+                        'message' => $waterLevelStatus === 'critical'
+                            ? 'Critical water level detected — immediate action required'
+                            : 'Water level above threshold',
+                        'triggered_at' => now(),
+                        'resolved_at' => null,
+                        'resolved_by' => null,
+                    ]
+                );
+            }
+
+            /**
+             * Resolves the active water level alert when the current
+             * water level returns to normal status.
+             */
+            if($waterLevelStatus === 'normal') {
+                $device->alerts()
+                    ->where('alert_type', 'water_level')
+                    ->where('is_active', true)
+                    ->update([
+                        'is_active' => false,
+                        'resolved_at' => now(),
+                    ]);
+            }
+
             $device->update([
-                'status' => $waterLevelStatus === 'critical' ? 'critical' : 'online',
+                'status' => $waterLevelStatus === 'normal' ? 'online' : $waterLevelStatus,
                 'last_seen_at' => now()
             ]);
 

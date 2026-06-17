@@ -9,7 +9,7 @@ class AlertController extends Controller
     public function index()
     {
         return Alert::with('device')
-            ->latest('created_at')
+            ->latest('triggered_at')
             ->get()
             ->map(fn ($alert) => [
                 'id' => 'alert_id',
