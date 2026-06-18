@@ -20,6 +20,6 @@ class AlertTemplate extends Model
 
     public function alerts()
     {
-        return $this->hasMany(Alerts::class);
+        return $this->hasMany(Alert::class);
     }
 }
