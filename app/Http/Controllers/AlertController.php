@@ -12,7 +12,7 @@ class AlertController extends Controller
             ->latest('triggered_at')
             ->get()
             ->map(fn ($alert) => [
-                'id' => 'alert_id',
+                'id' => $alert->id,
                 'sensor_code' => 'S-' . str_pad($alert->device_id, 3, '0', STR_PAD_LEFT),
                 'location' => $alert->device?->location_name,
                 'msg' => $alert->message,
